@@ -22,7 +22,7 @@ using std::ios_base;
 using std::array;
 
 template<typename T>
-matrix<T> createMatrixDouble(string txt, matrix<T> M){
+matrix<T> createMatrixDouble1(string txt, matrix<T> M){
     ifstream Quelldatei;
     Quelldatei.open(txt, ios_base::in);
     if(!Quelldatei)
@@ -59,6 +59,46 @@ matrix<T> createMatrixDouble(string txt, matrix<T> M){
     }
     return M;
 }
+template<typename T>
+matrix<T> createMatrixDouble(string txt, matrix<T> M){
+    ifstream Quelldatei;
+    Quelldatei.open(txt, ios_base::in);
+    if(!Quelldatei)
+    cerr<< "Konnte nicht geöffnet werden\n" << endl;
+    char c;
+    int i=0;
+     int j=0;  
+    string s ="";
+    stringstream ss;      
+    while(Quelldatei.get(c)){
+        if(c ==' ' ){
+            double n;    
+             ss >> n;
+            M(j,i)= n;
+           //cout<<" "<<s;
+            i++;
+             ss.clear();  
+        }  
+        if(c == ']' ){
+            if(j == M.size1())break;
+            double n;
+             ss >> n;
+            M(j,i)= n;
+           //cout<<" "<<s;
+            i++;
+             ss.clear();  
+            j++;
+            i=0;
+        }
+        if(c > 47 && c<58  ){
+            //c = c+48;
+            ss<<c;
+            //cout<<" "<<(int)c-48;
+             
+        }       
+    }
+    return M;
+}
 
 template<typename T>
 matrix<T> createMatrix100(string txt, matrix<T> M){
@@ -75,7 +115,7 @@ matrix<T> createMatrix100(string txt, matrix<T> M){
         if(c ==' ' ){    
              ss >> s;
             M(j,i)= cpp_dec_float_100(s);
-           cout<<" "<<s;
+           //cout<<" "<<s;
             i++;
              ss.clear();  
         }  
@@ -83,13 +123,13 @@ matrix<T> createMatrix100(string txt, matrix<T> M){
             if(j == M.size1())break;
              ss >> s;
             M(j,i)= cpp_dec_float_100(s);
-           cout<<" "<<s;
+           //cout<<" "<<s;
             i++;
              ss.clear();  
             j++;
             i=0;
         }
-        if(c > 47 && c<59  ){
+        if(c > 47 && c<58  ){
             //c = c+48;
             ss<<c;
             //cout<<" "<<(int)c-48;
@@ -110,20 +150,19 @@ matrix<T> createMatrix50(string txt, matrix<T> M){
     int j=0;  
     string s ="";
     stringstream ss;      
-    while(Quelldatei.get(c)){
-        if(c ==' ' ){    
+    while(Quelldatei.get(c)){       
+        if(c ==' '){
              ss >> s;
-            M(j,i)= cpp_dec_float_50(s);
+            M(j,i)=cpp_dec_float_50(s);
            cout<<" "<<s;
             i++;
-             ss.clear();  
-        }  
+             ss.clear();   
+        }
         if(c == '\n'){
              ss >> s;
             M(j,i)= cpp_dec_float_50(s);
-           cout<<" "<<s;
-            i++;
-             ss.clear();  
+           cout<<" "<<s;          
+             ss.clear();
             j++;
             i=0;
         }

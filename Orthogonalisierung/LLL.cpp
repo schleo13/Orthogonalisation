@@ -1,35 +1,29 @@
 #include "BGSS+rpl.cpp"
 #include <boost/math/special_functions/round.hpp>
-#include <boost/math/special_functions/pow.hpp>
 
 template<typename T>
-matrix<T> LLL2(matrix<T> X){
+matrix<T> LLLR(matrix<T> X){
     array<matrix<T>,2> aaa;
-    double delta = 3.0/4.0;
+    double delta = 0.75;
     aaa = cgs_rpl(X,1);
     matrix<T> R = aaa[1];
+    matrix<T> Q = aaa[0];
     int k = 1;
+    cout<<R<<endl;
     while(k < X.size2()){
-         
         for(int j = k-1; j >= 0; j--){
-            //T roo = round(inner_prod(column(X,k),column(M,j))/inner_prod(column(M,j),column(M,j)));
-            T roo = boost::math::round(R(j,k)/R(j,j));
-            if(roo != 0){
+            T roo =R(j,k)/R(j,j);
+            if(roo > 0.5 || roo*(-1) > 0.5){
                 cout<<"j = "<<j<<"       roo = "<<roo<<endl;
-            column(X,k) = column(X,k) - roo*column(X,j);
-            aaa = cgs_rpl(X,1);
-            R = aaa[1]; 
-            }
-              
+                roo = boost::math::round(roo);
+                column(X,k) = column(X,k) - roo*column(X,j);
+                 aaa = cgs_rpl(X,1);
+        R = aaa[1];
+            }    
         }
-        //T mu = inner_prod(column(X,k),column(M,k-1))/inner_prod(column(M,k-1),column(M,k-1));  
-       // T mu = R(k-1,k)/R(k-1,k-1); cout<<" mu = "<<mu<<" ; ";
-        //T left = inner_prod(column(M,k),column(M,k));
         T left = delta*R(k-1,k-1)*R(k-1,k-1);
-        //T right = ((3.0/4.0)-mu*mu)*inner_prod(column(M,k-1),column(M,k-1));
-        //T right = (delta-mu*mu)*R(k-1,k-1)*R(k-1,k-1);
         T right = R(k,k-1)*R(k,k-1)+R(k,k)*R(k,k);
-        cout<<left<<" > "<<right<<endl;
+        cout<<left<<" < "<<right<<endl;
         if(left < right){
             k++;
         }
@@ -38,8 +32,51 @@ matrix<T> LLL2(matrix<T> X){
             vector<T> vv = column(X,k-1);
             column(X,k-1) = column(X,k);
             column(X,k) = vv;
-            aaa = cgs_rpl(X,1);
-            R = aaa[1];
+             aaa = cgs_rpl(X,1);
+             R = aaa[1];
+            if(k > 1){
+                k--;
+            }
+            else{
+                k = 1;
+            }
+        }
+    }
+    cout<<"----------------------------------------------------------"<<endl;
+    cout<<X<<endl;
+    cout<<"----------------------------------------------------------"<<endl;
+    return X;  
+}
+
+template<typename T>
+matrix<T> LLLQ(matrix<T> X){
+    double delta = 0.75;
+    matrix<T> Q = MGS(X);
+    int k = 1;
+
+    while(k < X.size2()){
+        for(int j = k-1; j >= 0; j--){
+            T roo = inner_prod(column(X,k),column(Q,j))/inner_prod(column(Q,j),column(Q,j));
+            if(roo > 0.5 || roo*(-1) > 0.5){
+                 cout<<"j = "<<j<<"       roo = "<<roo<<endl;
+                 roo = round(roo);
+            column(X,k) = column(X,k) - (roo*column(X,j));
+            Q = MGS(X); 
+            }
+        }
+        T mu = inner_prod(column(X,k),column(Q,k-1))/inner_prod(column(Q,k-1),column(Q,k-1));  
+        T left = inner_prod(column(Q,k),column(Q,k));
+        T right = (delta-mu*mu)*inner_prod(column(Q,k-1),column(Q,k-1));
+        cout<<left<<" > "<<right<<endl;
+        if(left >= right){
+            k++;
+        }
+        else{
+            cout << "\nSwap: k = "<<k<< endl;
+            vector<T> vv = column(X,k-1);
+            column(X,k-1) = column(X,k);
+            column(X,k) = vv;  
+            Q = MGS(X);
             if(k-1 == 0){
                 k = 1;
             }
@@ -52,11 +89,9 @@ matrix<T> LLL2(matrix<T> X){
     cout<<X<<endl;
     cout<<"----------------------------------------------------------"<<endl;
     return X;  
-} 
+}
 
-
-int main(){
-    
+void MatrizenTest(){
 matrix<double> V (3,3);
 
 V(0,0)= 1.0;V(0,1)=-1.0;V(0,2)=3.0;
@@ -85,36 +120,25 @@ MM(2,0) =  cpp_dec_float_50("4000404430033030404040404049999999999999");
 MM(2,1) =  cpp_dec_float_50("99999999999999999999999999999999999999999999");
 MM(2,2) =  cpp_dec_float_50("100000000000000000000000000000011111111111111111");
 
-
-
-
-cout<<"***********************************************************************************************"<<endl;
-
- cout<<"***********************************************************************************************"<<endl; 
-cout<<"***********************************************************************************************"<<endl;
-cout<<"***********************************************************************************************"<<endl;
-
-
-matrix<cpp_dec_float_100> HARD(60,60);
- //HARD = createMatrix100("svp60.txt",HARD);
- matrix<cpp_dec_float_100> AA = LLL2(V);
-matrix<cpp_dec_float_100> BB = LLL2(N);
-
-matrix<cpp_dec_float_100> CC = LLL2(MM);
-
-
-cout<<"***********************************************************************************************"<<endl; 
-cout<<"***********************************************************************************************"<<endl;
-cout<<"***********************************************************************************************"<<endl;
-
-
-
-cout<<"***********************************************************************************************"<<endl; 
-cout<<"***********************************************************************************************"<<endl;
-cout<<"***********************************************************************************************"<<endl;
-//matrix<cpp_dec_float_100> HH = LLL2(HARD);
-
-
-
-    return 0;
+matrix<double> M(6,6);
+M(0,0) = 35051.0; M(0,1) = 0;   M(0,2) = 0;   M(0,3) = 0;   M(0,4) = 0;   M(0,5) = 0;
+M(1,0) = 1669.0 ; M(1,1) = 1.0; M(1,2) = 0;   M(1,3) = 0;   M(1,4) = 0;   M(1,5) = 0;
+M(2,0) = 4828.0 ; M(2,1) = 0;   M(2,2) = 1.0; M(2,3) = 0;   M(2,4) = 0;   M(2,5) = 0;
+M(3,0) = 33763.0; M(3,1) = 0;   M(3,2) = 0;   M(3,3) = 1.0; M(3,4) = 0;   M(3,5) = 0;
+M(4,0) = 4875.0 ; M(4,1) = 0;   M(4,2) = 0;   M(4,3) = 0;   M(4,4) = 1.0; M(4,5) = 0;
+M(5,0) = 32724.0; M(5,1) = 0;   M(5,2) = 0;   M(5,3) = 0;   M(5,4) = 0;   M(5,5) = 1.0; 
+ 
+matrix<double> R(5,5);
+R(0,0) = 1000.0; R(0,1) = 0.0; R(0,2) = 0.0; R(0,3) = 0.0; R(0,4) = 0.0; 
+R(1,0) = 2222.0 ; R(1,1) = 1.0; R(1,2) = 0.0; R(1,3) = 0.0; R(1,4) = 0.0; 
+R(2,0) = 3333.0 ; R(2,1) = 0.0; R(2,2) = 1.0; R(2,3) = 0.0; R(2,4) = 0.0; 
+R(3,0) = 4000.0; R(3,1) = 0.0; R(3,2) = 0.0; R(3,3) = 1.0; R(3,4) = 0.0; 
+R(4,0) = 5555.0 ; R(4,1) = 0.0; R(4,2) = 0.0; R(4,3) = 0.0; R(4,4) = 1.0;
 }
+
+
+
+
+
+
+
