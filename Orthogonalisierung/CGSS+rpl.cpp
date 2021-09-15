@@ -276,7 +276,7 @@ void ZeitNormMessen(string matrixklasse, T type,int minSize, int maxSize){
      for(i ; i <= maxSize; i = i+ii ){   
         matrix<T> X(i,i);
     
-    if(matrixklasse != "randFull"|| matrixklasse!= "randI"|| matrixklasse != "Hilbert"){
+    if(matrixklasse != "randFull"|| matrixklasse!= "randI"|| matrixklasse != "Hilbert"||matrixklasse !="selbst"){
         stringstream sss;
         sss << i;
         string str = sss.str();
