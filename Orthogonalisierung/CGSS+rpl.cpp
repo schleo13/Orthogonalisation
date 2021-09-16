@@ -276,7 +276,7 @@ void ZeitNormMessen(string matrixklasse, T type,int minSize, int maxSize){
      for(i ; i <= maxSize; i = i+ii ){   
         matrix<T> X(i,i);
     
-    if(matrixklasse != "randFull"|| matrixklasse!= "randI"|| matrixklasse != "Hilbert"||matrixklasse !="selbst"){
+    if(matrixklasse != "randFull"&& matrixklasse!= "randI"&& matrixklasse != "Hilbert"&&matrixklasse !="selbst"){
         stringstream sss;
         sss << i;
         string str = sss.str();
@@ -367,7 +367,7 @@ int main(){
    cpp_dec_float_50 e ("9");
    cpp_dec_float_10 w ("9");
     double t=3.0;
-ZeitNormMessen("svpchallenge",n,100,120); 
+ZeitNormMessen("Hilbert",n,100,120); 
 //cout<<std::numeric_limits<cpp_dec_float_10>::digits<<w<<endl;
 
 
